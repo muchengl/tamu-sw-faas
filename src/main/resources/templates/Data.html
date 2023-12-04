@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Info</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="../js/jquery-3.4.1.js"></script>
+
+    <STYLE>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #userInfo {
+            margin-bottom: 20px;
+        }
+
+        button {
+            margin-right: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #overlay {
+            position: fixed; /* 定位为固定位置 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
+            display: none; /* 初始时不显示 */
+            z-index: 1000; /* 确保在最上层 */
+        }
+
+        #registerForm {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body id="body">
+<div id="userInfo">
+    <h2>User Info</h2>
+<!--    <p id="displayUserInfo"></p>-->
+    <p id="userid"></p>
+    <p id="email"></p>
+    <p id="balance"></p>
+    <script>
+        $.get({
+            url: "/user/info",
+            dataType: 'json',
+            success: function (data) {
+                $("#userid").text("UserID: "+data.userId)
+                $("#email").text("Email: "+data.email)
+                $("#balance").text("Balance: "+data.balance)
+
+            }
+        })
+    </script>
+</div>
+<button id="rechargeButton" onclick="addMoney()">Recharge</button>
+<button id="updateBillButton" onclick="makebill()">Update Bill</button>
+
+<SCRIPT>
+    function addMoney(){
+        $('#body').append(
+            '<div id="overlay">\n' +
+            '    <div id="registerForm">\n' +
+            '        <h2>Recharge</h2>\n' +
+            '        <form>\n' +
+            '            <input type="text" id="money" placeholder="money" required><br>' +
+            '            <input type="text" id="card" placeholder="card number" required><br>' +
+            '            <button type="submit" onclick="amoney()">submit</button>\n' +
+            '        </form>\n' +
+            '    </div>\n' +
+            '</div>'
+        )
+        $('#overlay').show();
+    }
+
+    function amoney(){
+        $.get({
+            url: "./user/add/balance",
+            dataType: 'json',
+            data:{
+                money:  $('#money').val(),
+            },
+            success: function (data) {
+                if(data=='ok'){
+                    alert("success")
+                    $('#overlay').hide()
+                }
+            }
+        })
+    }
+
+    function makebill(){
+        $.get({
+            url: "/update/bills",
+            dataType: 'json',
+            success: function (data) {
+                if(data=='ok'){
+                    alert("success")
+                    location.reload()
+                }
+            }
+        })
+    }
+</SCRIPT>
+
+<h2>Actions</h2>
+<hr/>
+<div class="container-fluid" style="width: 1000px">
+    <div class="row-fluid">
+        <div class="span12">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>
+                        ID
+                    </th>
+                    <th>
+                        Action
+                    </th>
+                    <th>
+                        Money
+                    </th>
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        Action
+                    </th>
+                </tr>
+                </thead>
+                <tbody id="listactions">
+
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    $.get({
+        url: "/bills",
+        dataType: 'json',
+        success: function (data) {
+            //alert(data);
+            for (i = data.length-1; i >=0 ; i--) {
+                // if(data[i].func_status==1) {
+                var action=(data[i].status =='success')?"<span style='color: green'>-</span>":"<span style='color:coral'>pay</span>"
+
+                $("#listactions").append(
+                    "<tr>"
+                    + "<td>" + data[i].billID + "</td>"
+                    + "<td>" + data[i].type + "</td>"
+                    + "<td>" + data[i].money + "</td>"
+                    + "<td>" + data[i].date + "</td>"
+                    + "<td>" + data[i].status + "</td>"
+                    + "<td><a onclick='payBill(\""+data[i].billID+"\")'>" + action + "</a></td>"
+                );
+
+            }
+
+        }
+    })
+
+    function payBill(id){
+        console.log("pay:"+id)
+        $.get({
+            url: "/pay/bill",
+            dataType: 'json',
+            data: {
+                bid:id,
+            },
+            success: function (data) {
+                alert("success")
+                // $(document).ready(function() {
+                //     location.reload();
+                // });
+                window.location.href = '/date';
+            }
+        })
+    }
+</script>
+
+<!--<script src="script.js"></script>-->
+</body>
+</html>

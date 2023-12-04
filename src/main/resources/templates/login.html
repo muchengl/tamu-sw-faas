@@ -1,0 +1,92 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>LOGIN</title>
+    <link rel="stylesheet" type="text/css" href="css/indexStyle.css" />
+    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <script src="../js/jquery-3.4.1.js"></script>
+    <style>
+        #overlay {
+            position: fixed; /* 定位为固定位置 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
+            display: none; /* 初始时不显示 */
+            z-index: 1000; /* 确保在最上层 */
+        }
+
+        #registerForm {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body id="body">
+<div id="bigBox">
+    <h1>LOGIN to Color FaaS</h1>
+    <div class="inputBox">
+        <form action="#" th:action="@{/user}" method="post">
+            <div class="inputText">
+                <i class="fa fa-user-circle" style="color: whitesmoke;"></i>
+                <input type="text" placeholder="email" id="username" name="username"/>
+            </div>
+            <div class="inputText">
+                <i class="fa fa-key" style="color: whitesmoke;"></i>
+                <input type="password" placeholder="password" id="password" name="password"/>
+            </div>
+            <div onclick="newuser()">New user?<div>
+            <input type="submit" class="inputButton" value="LOGIN"/>
+        </form>
+
+        <script>
+            function newuser(){
+                // alert("new user")
+                $('#body').append(
+                    '<div id="overlay">\n' +
+                    '    <div id="registerForm">\n' +
+                    '        <h2>Register</h2>\n' +
+                    '        <form>\n' +
+                    '            <input type="text" id="newname" placeholder="Username" required><br>' +
+                    '            <input type="email" id="email" placeholder="Email" required><br>' +
+                    '            <input type="password" id="newpassword" placeholder="Password" required><br>' +
+                    '            <button type="submit" onclick="adduser()">Register</button>\n' +
+                    '        </form>\n' +
+                    '    </div>\n' +
+                    '</div>'
+                )
+                $('#overlay').show();
+            }
+
+            function adduser(){
+                $.get({
+                    url: "/add/user",
+                    dataType: 'json',
+                    data:{
+                        username:$('#newname').val(),
+                        email:  $('#email').val(),
+                        password:  $('#newpassword').val(),
+                    },
+                    success: function (data) {
+                        if(data=='ok'){
+                            alert("success")
+                            $('#overlay').hide()
+                        }
+                    }
+                })
+            }
+
+        </script>
+    </div>
+</div>
+</body>
+</html>
+
