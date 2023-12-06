@@ -54,4 +54,23 @@ public class UserRestController {
         return list;
     }
 
+    @RequestMapping("/login/user")
+    public User VerifyUser(String username, String password, HttpServletRequest request){
+        System.out.println("VerifyUser:"+username+" "+password);
+
+        User user=userRepository.findByEmail(username);
+
+        if(user==null){
+            return null;
+        }
+        System.out.println(user.toString());
+
+        if(user.getPassword().equals(password)) {
+            request.getSession().setAttribute("username",user.getUsername());
+            request.getSession().setAttribute("userID",user.getUserId());
+            return user;
+        }
+        else  return null;
+    }
+
 }
